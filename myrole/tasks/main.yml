@@ -1,0 +1,27 @@
+---
+- name: Install etcd
+  import_tasks: etcd.yaml
+
+- name: Install PostgreSQL
+  import_tasks: postgresql.yaml
+
+- name: Install Patroni
+  import_tasks: patroni.yaml
+
+- name: Copy Patroni configuration file
+  import_tasks: copy_patroni.yaml
+
+- name: Copy pg_hba.conf configuration files
+  import_tasks: copy_pg_hba.yaml
+
+- name: Install PgBouncer
+  import_tasks: pgbouncer.yaml
+
+- name: Copy PgBouncer configuration files
+  import_tasks: copy_pgbouncer.yaml
+
+- name: Install HAProxy
+  import_tasks: haproxy.yaml
+
+- name: Copy HAProxy configuration files
+  import_tasks: copy_haproxy.yaml

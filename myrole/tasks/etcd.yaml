@@ -37,7 +37,7 @@
 
 - name: Configure etcd service
   template:
-    src: /home/node1/ansible/installation/etcd.service.j2
+    src: etcd.service.j2
     dest: /etc/systemd/system/etcd.service
     
 - name: Creta directory
@@ -47,7 +47,7 @@
 
 - name: copy etcd config file
   ansible.builtin.template:
-    src: /home/node1/ansible/configfiles/etcd.conf
+    src: etcd.conf
     dest: /etc/etcd/etcd.conf
 
 - name: Creta directory in /var/lib
@@ -65,10 +65,4 @@
     name: etcd
     state: started
     enabled: yes
-
-- name: Configure etcd service
-  template:
-    src: /home/node1/ansible/installation/etcd.service.j2
-    dest: /etc/systemd/system/etcd.service
-
 

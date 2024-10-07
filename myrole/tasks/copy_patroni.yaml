@@ -1,11 +1,11 @@
 - name: Copy patroni config file
   ansible.builtin.template:
-    src: /home/node1/ansible/configfiles/config.yml.j2
+    src: config.yml.j2
     dest: /etc/patroni/config.yml
 
 - name: Remove postgresql.conf file
   file:
-    path: /etc/postgresql/14/main/postgresql.conf  
+    path: /etc/postgresql/16/main/postgresql.conf  
     state: absent
 
 - name: Ensure PostgreSQL data directory exists

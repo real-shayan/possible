@@ -1,0 +1,24 @@
+- name: Copy pgbouncer config file
+  ansible.builtin.template:
+    src: pgbouncer.ini
+    dest: /etc/pgbouncer/
+
+- name: create file 
+  ansible.builtin.file:
+    path: /var/run/pgbouncer
+    owner: postgres
+    group: postgres
+    state: directory
+
+- name: Create or replace user_search function using psql
+  ansible.builtin.shell: |
+    sudo -u postgres psql -d your_database_name -c "
+    CREATE OR REPLACE FUNCTION public.user_search(uname text)  
+      RETURNS TABLE(usename name, passwd text)                  
+      LANGUAGE sql                                              
+      SECURITY DEFINER                                          
+    AS \$function\$                                              
+        SELECT usename, passwd FROM pg_shadow WHERE usename=\$1;
+    \$function\$;"
+
+

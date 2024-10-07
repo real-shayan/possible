@@ -128,10 +128,10 @@ postgresql:
   authentication:
     replication:
       username: replicator
-      password: 974286e470e43dd0e487743afe6525b8c7c4493f568cb9cd9408f15009fb7810
+      password: {{ myreplicapass}}
     superuser:
       username: postgres
-      password: c6808a12923371283d1dc0618531ff98994fa65f9debb41b4344514290146d23
+      password: {{mypostgrespass}}
   parameters:
     unix_socket_directories: /var/run/postgresql
 

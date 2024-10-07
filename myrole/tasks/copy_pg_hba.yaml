@@ -1,13 +1,13 @@
 - name: Copy pg_hba.conf file with postgres ownership
   ansible.builtin.template:
-    src: /home/node1/ansible/configfiles/pg_hba.conf
+    src: pg_hba.conf
     dest: /etc/postgresql/16/main/pg_hba.conf
     owner: postgres
     group: postgres
 
 - name: Copy postgresql.conf file with postgres ownership
   ansible.builtin.template:
-    src: /home/node1/ansible/configfiles/postgresql.conf
+    src: postgresql.conf
     dest: /etc/postgresql/16/main/postgresql.conf
     owner: postgres
     group: postgres
