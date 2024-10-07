@@ -1,0 +1,33 @@
+- name: Install wget and ca-certificates
+  apt:
+    name:
+      - wget
+      - ca-certificates
+    state: present
+  
+
+- name: Add PostgreSQL GPG key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+ 
+- name: Add PostgreSQL repository to sources list
+  shell: echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+
+- name: Update  repositories
+  apt:
+    update_cache: yes
+
+
+- name: Install PostgreSQL
+  apt:
+    name: postgresql-16
+    state: present
+    
+
+- name: enable postgresql
+  systemd:
+    name: postgresql
+    enabled: yes
+    state: started
+

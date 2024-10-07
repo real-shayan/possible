@@ -1,0 +1,37 @@
+- name: Install Patroni
+  apt:
+    name: patroni
+    state: present
+    update_cache: yes
+
+
+- name: Get total memory in MB
+  shell: free -m | grep -i mem | awk '{print $2}'
+  register: total_memory
+  changed_when: false
+
+- name: Calculate 70% of total memory
+  set_fact:
+    calculated_mem: "{{ (total_memory.stdout | int * 70) // 100 }}"
+
+- name: Set shared_buffers, effective_cache_size, and work_mem
+  set_fact:
+    shared_buffers: "{{ (calculated_mem | int * 25) // 100 }}MB"
+    effective_cache_size: "{{ (calculated_mem | int * 75) // 100 }}MB"
+    work_mem: "{{ (calculated_mem | int * 2) // 100 }}MB"
+
+- name: Debug memory settings
+  debug:
+    msg:
+      - "Total Memory: {{ total_memory.stdout }}MB"
+      - "Calculated Memory (70%): {{ calculated_mem }}MB"
+      - "Shared Buffers: {{ shared_buffers }}"
+      - "Effective Cache Size: {{ effective_cache_size }}"
+      - "Work Memory: {{ work_mem }}"
+
+- name: Restart Patroni service
+  become: yes
+  service:
+    name: patroni
+    state: restarted
+

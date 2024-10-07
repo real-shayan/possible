@@ -1,0 +1,74 @@
+- name: Install dependencies
+  apt:
+    name:
+      - curl
+      - tar
+    state: present
+
+- name: Fetch latest etcd version
+  shell: |
+    curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | grep tag_name | cut -d '"' -f 4
+  register: etcd_version_output
+
+- name: Set etcd version as a variable
+  set_fact:
+    etcd_version: "{{ etcd_version_output.stdout }}"
+
+- name: Download latest etcd
+  ansible.builtin.get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz 
+    dest: /tmp/etcd.tar.gz
+- name: Extract etcd
+  unarchive:
+    src: /tmp/etcd.tar.gz
+    dest: /usr/local/bin/
+    remote_src: yes
+
+- name: Move etcd binaries to /usr/local/bin
+  shell: mv /usr/local/bin/etcd-{{ etcd_version }}-linux-amd64/etcd* /usr/local/bin/
+
+- name: Create etcd system user
+  user:
+    name: etcd
+    system: yes
+    shell: /bin/false
+    state: present
+
+
+- name: Configure etcd service
+  template:
+    src: /home/node1/ansible/installation/etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    
+- name: Creta directory
+  ansible.builtin.file:
+    path: /etc/etcd
+    state: directory
+
+- name: copy etcd config file
+  ansible.builtin.template:
+    src: /home/node1/ansible/configfiles/etcd.conf
+    dest: /etc/etcd/etcd.conf
+
+- name: Creta directory in /var/lib
+  ansible.builtin.file:
+    path: /var/lib/etcd
+    state: directory
+    owner: etcd
+    group: etcd
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: Ensure etcd service is enabled and started
+  systemd:
+    name: etcd
+    state: started
+    enabled: yes
+
+- name: Configure etcd service
+  template:
+    src: /home/node1/ansible/installation/etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+
+

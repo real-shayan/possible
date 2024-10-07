@@ -1,0 +1,4 @@
+- name: Copy haproxy config file
+  ansible.builtin.template:
+    src: /home/node1/ansible/configfiles/haproxy.cfg
+    dest: /etc/haproxy/

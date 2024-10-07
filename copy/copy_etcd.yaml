@@ -1,0 +1,4 @@
+ - name: copy etcd config file
+   ansible.builtin.template:
+     src: /home/node1/ansible/configfiles/etcd.conf
+     dest: /etc/etcd/etcd.conf

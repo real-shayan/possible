@@ -1,0 +1,32 @@
+---
+- name: Install and configure PostgreSQL Cluster
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install etcd
+      import_tasks: installation/etcd.yaml
+   
+    - name: Install PostgreSQL
+      import_tasks: installation/postgresql.yaml
+   
+    - name: Install Patroni
+      import_tasks: installation/patroni.yaml
+      
+    - name: Copy Patroni configuration file
+      import_tasks: copy/copy_patroni.yaml
+    
+    - name: Copy pg_hba.conf configuration files
+      import_tasks: copy/copy_pg_hba.yaml
+
+    - name: Install PgBouncer
+      import_tasks: installation/pgbouncer.yaml
+    
+    - name: Copy PgBouncer configuration files
+      import_tasks: copy/copy_pgbouncer.yaml
+    
+    - name: Install HAProxy
+      import_tasks: installation/haproxy.yaml
+    
+    - name: Copy HAProxy configuration files
+      import_tasks: copy/copy_haproxy.yaml
