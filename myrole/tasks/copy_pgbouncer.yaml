@@ -9,16 +9,49 @@
     owner: postgres
     group: postgres
     state: directory
+- name: Run patronictl list to get cluster status
+  shell: patronictl -c /etc/patroni/config.yml list
+  register: patroni_list_output
+  changed_when: false
 
-- name: Create or replace user_search function using psql
+- name: Parse Patroni leader from patronictl list output
+  ansible.builtin.set_fact:
+    patroni_leader: "{{ item.split('|')[1].strip() }}"
+  loop: "{{ patroni_list_output.stdout_lines }}"
+  when: "'Leader' in item"
+
+- name: Debug patroni_leader
+  ansible.builtin.debug:
+    msg: "Patroni leader is {{ patroni_leader }} on {{ inventory_hostname }}"
+  when: patroni_leader is defined
+
+- name: Create pgbouncer user on leader
   ansible.builtin.shell: |
-    sudo -u postgres psql -d your_database_name -c "
-    CREATE OR REPLACE FUNCTION public.user_search(uname text)  
-      RETURNS TABLE(usename name, passwd text)                  
-      LANGUAGE sql                                              
-      SECURITY DEFINER                                          
-    AS \$function\$                                              
-        SELECT usename, passwd FROM pg_shadow WHERE usename=\$1;
-    \$function\$;"
+    if ! sudo -u postgres psql -t -c "SELECT 1 FROM pg_roles WHERE rolname='pgbouncer';" | grep -q 1; then
+      sudo -u postgres psql -c "
+      CREATE USER pgbouncer WITH PASSWORD 'your_password';
+      ";
+    else
+      echo "User pgbouncer already exists.";
+    fi
+  register: create_user_result
+  when: inventory_hostname == patroni_leader
+  changed_when: create_user_result.stdout != "User pgbouncer already exists."
 
+- name: Check result of user creation
+  debug:
+    msg: "{{ create_user_result.stdout }}"
+  when: inventory_hostname == patroni_leader
+
+- name: Create or replace user_search function on leader
+  ansible.builtin.shell: |
+    sudo -u postgres psql -c "
+    CREATE OR REPLACE FUNCTION public.user_search(uname text)
+    RETURNS TABLE(usename name, passwd text)
+    LANGUAGE sql
+    SECURITY DEFINER
+    AS \$function\$
+    SELECT usename, passwd FROM pg_shadow WHERE usename=\$1;
+    \$function\$;"
+  when: inventory_hostname == patroni_leader
 
