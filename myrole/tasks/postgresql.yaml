@@ -1,11 +1,10 @@
 - name: Install wget and ca-certificates
-  apt:
+  ansible.builtin.apt:
     name:
       - wget
       - ca-certificates
     state: present
-  
-
+ 
 - name: Add PostgreSQL GPG key
   apt_key:
     url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
@@ -16,18 +15,15 @@
 
 - name: Update  repositories
   apt:
-    update_cache: yes
-
+    update_cache: true
 
 - name: Install PostgreSQL
   apt:
     name: postgresql-16
     state: present
-    
 
-- name: enable postgresql
+- name: Enable postgresql
   systemd:
     name: postgresql
-    enabled: yes
+    enabled: true
     state: started
-
