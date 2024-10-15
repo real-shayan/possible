@@ -1,6 +1,6 @@
 ---
 - name: Install and configure PostgreSQL Cluster
   hosts: all
-  become: yes
+  become: True
   roles:
    - 'myrole'
